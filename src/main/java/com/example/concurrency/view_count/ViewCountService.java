@@ -58,13 +58,27 @@ public class ViewCountService {
   @Transactional
   public void incrementViewCountByRedis(Long id) {
     String key = VIEW_COUNT_KEY_PREFIX + id;
+    Long currentValue = redisTemplate.opsForValue().get(key);
+
+    if (currentValue == null) {
+      // 키가 없으면 초기값을 1로 설정
+      redisTemplate.opsForValue().set(key, 1L);
+    } else {
+      // 값이 있으면 현재 값에 1을 더하여 저장
+      redisTemplate.opsForValue().increment(key);
+    }
+  }
+
+  @Transactional
+  public void incrementViewCountByRedis2(Long id) {
+    String key = VIEW_COUNT_KEY_PREFIX + id;
     redisTemplate.opsForValue().increment(key); // Redis에서 조회수 증가
   }
 
-/*  @Transactional
+  @Transactional
   public Long getViewCount(Long id) {
     String key = VIEW_COUNT_KEY_PREFIX + id;
     String value = String.valueOf(redisTemplate.opsForValue().get(key)); // Redis에서 조회수 조회
     return (value != null) ? Long.valueOf(value) : 0; // null이면 0 반환
-  }*/
+  }
 }

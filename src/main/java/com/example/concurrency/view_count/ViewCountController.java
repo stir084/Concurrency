@@ -43,14 +43,21 @@ public class ViewCountController {
   /**
    * redis
    */
-  @GetMapping("/increment/{id}")
+  @GetMapping("/redis/increment/{id}")
   public String increment(@PathVariable Long id) {
     viewCountService.incrementViewCountByRedis(id);
     return "View count incremented";
   }
 
- /* @GetMapping("/view-count/{id}")
+  @GetMapping("/redis/increment2/{id}")
+  public String increment2(@PathVariable Long id) {
+    viewCountService.incrementViewCountByRedis2(id);
+    return "View count incremented";
+  }
+
+
+  @GetMapping("/view-count/{id}")
   public Long getViewCount(@PathVariable Long id) {
     return viewCountService.getViewCount(id);
-  }*/
+  }
 }
