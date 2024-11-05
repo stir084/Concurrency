@@ -15,49 +15,58 @@ public class ViewCountController {
     this.viewCountService = viewCountService;
   }
 
-  @GetMapping("/increment-sleep")
-  public String incrementSleep(@RequestParam Long id) throws InterruptedException {
-    viewCountService.incrementSleep(id);
+  /**
+   * Repeatable Read 격리 수준에서 두 트랜잭션 간 수정 충돌이 발생하면
+   * 대부분의 데이터베이스는 충돌을 감지하여 해당 트랜잭션을 실패시키고 롤백하는 방식을 택한다.
+   *
+   * 1. With Sleep API 를 실행해서 30초 뒤에 증감한다.
+   * 2. 30초 기다리는 동안 Without Sleep API를 실행해서 조회수를 증감시킨다.
+   * 3. With Sleep API는 실패한다.
+   */
+  @GetMapping("/increment-with-sleep")
+  public String incrementWithSleep(@RequestParam Long id) throws InterruptedException {
+    viewCountService.incrementWithSleep(id);
     return "";
   }
 
-  @GetMapping("/increment")
-  public String incrementSleep2(@RequestParam Long id) {
-    viewCountService.incrementViewCount(id);
+  @GetMapping("/increment-without-sleep")
+  public String incrementWithoutSleep(@RequestParam Long id) {
+    viewCountService.incrementWithoutSleep(id);
     return "";
   }
 
-  @GetMapping("/increment-sleep-lock-sleep")
-  public String incrementSleep3(@RequestParam Long id) throws InterruptedException {
-    viewCountService.incrementViewCountWithLockSleep(id);
+  /**
+   * 조회수와 같이 여러명이 동시에 쓰이는 곳은 비관적 락을 사용한다.
+   * 위의 코드와 다르게 두번째 메소드를 조회시 첫번째 메소드를 아직 실행중(30초)이니 조회가 되지 않는다.
+   * 그래서 정확한 데이터 유지 가능
+   */
+  @GetMapping("/increment-with-sleep-lock")
+  public String incrementWithSleepAndLock(@RequestParam Long id) throws InterruptedException {
+    viewCountService.incrementWithSleepAndLock(id);
     return "";
   }
 
-  @GetMapping("/increment-sleep-lock")
-  public String incrementSleep4(@RequestParam Long id) {
-    viewCountService.incrementViewCountWithLock(id);
+  @GetMapping("/increment-without-sleep-lock")
+  public String incrementWithoutSleepAndLock(@RequestParam Long id) {
+    viewCountService.incrementWithoutSleepAndLock(id);
     return "";
   }
 
 
   /**
-   * redis
+   * redis에서는 INCR를 사용하면 조회수 증감은 잘 처리할 수 있다.
+   * 다만, 복잡한 로직(재고) 처리에서 RDBMS에서의 Repeatable Read 현상과 달리
+   * 롤백되지 않고 데이터가 올바르게 수정된다.
    */
-  @GetMapping("/redis/increment/{id}")
-  public String increment(@PathVariable Long id) {
-    viewCountService.incrementViewCountByRedis(id);
-    return "View count incremented";
+  @GetMapping("/increment-using-redis-with-sleep")
+  public String incrementUsingRedisWithSleep(@RequestParam Long id) throws InterruptedException {
+    viewCountService.incrementUsingRedisWithSleep(id);
+    return "";
   }
 
-  @GetMapping("/redis/increment2/{id}")
-  public String increment2(@PathVariable Long id) {
-    viewCountService.incrementViewCountByRedis2(id);
-    return "View count incremented";
-  }
-
-
-  @GetMapping("/view-count/{id}")
-  public Long getViewCount(@PathVariable Long id) {
-    return viewCountService.getViewCount(id);
+  @GetMapping("/increment-using-redis-without-sleep")
+  public String incrementUsingRedisWithoutSleep(@RequestParam Long id) {
+    viewCountService.incrementUsingRedisWithoutSleep(id);
+    return "";
   }
 }
