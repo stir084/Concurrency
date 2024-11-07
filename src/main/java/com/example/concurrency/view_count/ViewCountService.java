@@ -67,14 +67,9 @@ public class ViewCountService {
     redisTemplate.opsForValue().increment(key);
   }
 
-  public void incrementUsingRedisWithLock(Long id) throws InterruptedException {
+  public void incrementUsingLock(Long id) throws InterruptedException {
     String key = VIEW_COUNT_KEY_PREFIX + id;
     String lockKey = key + ":lock";
-
-    // 프로비저닝 요청하면 알림
-    // 상품 쪽
-
-
     // 분산 락 설정
     Boolean lockAcquired = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, "lock", Duration.ofSeconds(35));
     if (lockAcquired != null && lockAcquired) {

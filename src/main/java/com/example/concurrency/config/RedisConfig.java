@@ -1,4 +1,4 @@
-package com.example.concurrency.view_count;
+package com.example.concurrency.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

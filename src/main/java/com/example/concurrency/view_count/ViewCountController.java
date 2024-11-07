@@ -69,4 +69,10 @@ public class ViewCountController {
     viewCountService.incrementUsingRedisWithoutSleep(id);
     return "";
   }
+
+  @GetMapping("/increment-using-lock")
+  public String incrementUsingLock(@RequestParam Long id) throws InterruptedException {
+    viewCountService.incrementUsingLock(id);
+    return "";
+  }
 }
